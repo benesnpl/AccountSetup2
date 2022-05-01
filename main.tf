@@ -4,7 +4,7 @@ provider "aws" {
 
 
 # VPC
-resource "aws_vpc" "terra_vpc" {
+resource "aws_vpc" "main_vpc" {
   cidr_block       					= var.vpc_cidr
   instance_tenancy 					= var.instance_tenancy
   enable_dns_hostnames             	= var.enable_dns_hostnames
@@ -14,16 +14,16 @@ resource "aws_vpc" "terra_vpc" {
   }
 }
 
-resource "aws_internet_gateway" "terra_igw" {
-  vpc_id = aws_vpc.terra_vpc.id
+resource "aws_internet_gateway" "main_igw" {
+  vpc_id = aws_vpc.main_vpc.id
   tags = {
-    Name = "main"
+    Name = "Test_IGW"
   }
 }
 
 resource "aws_subnet" "public" {
   count = length(var.subnets_cidr_public)
-  vpc_id = aws_vpc.terra_vpc.id
+  vpc_id = aws_vpc.main.id
   cidr_block = element(var.subnets_cidr_public,count.index)
   availability_zone = element(var.azs,count.index)
   map_public_ip_on_launch = true
@@ -34,7 +34,7 @@ resource "aws_subnet" "public" {
 
 resource "aws_subnet" "private" {
   count = length(var.subnets_cidr_private)
-  vpc_id = aws_vpc.terra_vpc.id
+  vpc_id = aws_vpc.main_vpc.id
   cidr_block = element(var.subnets_cidr_private,count.index)
   availability_zone = element(var.azs,count.index)
   map_public_ip_on_launch = true
@@ -44,10 +44,10 @@ resource "aws_subnet" "private" {
 }
 
 resource "aws_route_table" "public_rt" {
-  vpc_id = aws_vpc.terra_vpc.id
+  vpc_id = aws_vpc.main.id
   route {
     cidr_block = "0.0.0.0/0"
-    gateway_id = aws_internet_gateway.terra_igw.id
+    gateway_id = aws_internet_gateway.main_igw.id
   }
   tags = {
     Name = "Public_rt"
@@ -55,11 +55,27 @@ resource "aws_route_table" "public_rt" {
 }
 
 resource "aws_route_table" "private_rt" {
-  vpc_id = aws_vpc.terra_vpc.id
+  vpc_id = aws_vpc.main_vpc.id
   route {
     cidr_block = "0.0.0.0/0"
-    gateway_id = aws_nat_gateway.example.id
+    gateway_id = aws_nat_gateway.main_nat.id
   }
+  
+   route {
+    cidr_block = "192.168.0.0/16"
+    gateway_id = aws_vpn_gateway.vpn_gw.id
+  }
+  
+   route {
+    cidr_block = "172.16.0.0/12"
+    gateway_id = aws_vpn_gateway.vpn_gw.id
+  }
+  
+   route {
+    cidr_block = "10.0.0.0/8"
+    gateway_id = aws_vpn_gateway.vpn_gw.id
+  }
+  
   tags = {
     Name = "Private_rt"
   }
@@ -90,19 +106,19 @@ data "aws_subnet" "selected" {
   depends_on = [aws_subnet.public]
 }
 
-resource "aws_nat_gateway" "example" {
+resource "aws_nat_gateway" "main_nat" {
   allocation_id = aws_eip.nat.id
   subnet_id     = data.aws_subnet.selected.id
 
   tags = {
-    Name = "gw NAT"
+    Name = "Test_NGW"
   }
 
-  depends_on = [aws_internet_gateway.terra_igw]
+  depends_on = [aws_internet_gateway.main_igw]
 }
 
 resource "aws_vpn_gateway" "vpn_gw" {
-  vpc_id = aws_vpc.terra_vpc.id
+  vpc_id = aws_vpc.main_vpc.id
 
   tags = {
     Name = "Test_VGW"
