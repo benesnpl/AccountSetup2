@@ -18,7 +18,7 @@ variable "subnets_cidr_private" {
 
 variable "azs" {
 	type = list
-	default = ["eu-west-1a", "eu-west-1a"]
+	default = ["eu-west-1a", "eu-west-1b"]
 }
 
 variable "enable_dns_support" {
