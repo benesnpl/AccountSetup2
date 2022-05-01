@@ -22,9 +22,20 @@ resource "aws_internet_gateway" "terra_igw" {
 }
 
 resource "aws_subnet" "public" {
-  count = length(var.subnets_cidr)
+  count = length(var.subnets_cidr_public)
   vpc_id = aws_vpc.terra_vpc.id
-  cidr_block = element(var.subnets_cidr,count.index)
+  cidr_block = element(var.subnets_cidr_public,count.index)
+  availability_zone = element(var.azs,count.index)
+  map_public_ip_on_launch = true
+  tags = {
+    Name = "Subnet-${count.index+1}"
+  }
+}
+
+resource "aws_subnet" "private" {
+  count = length(var.subnets_cidr_private)
+  vpc_id = aws_vpc.terra_vpc.id
+  cidr_block = element(var.subnets_cidr_private,count.index)
   availability_zone = element(var.azs,count.index)
   map_public_ip_on_launch = true
   tags = {
@@ -39,11 +50,31 @@ resource "aws_route_table" "public_rt" {
     gateway_id = aws_internet_gateway.terra_igw.id
   }
   tags = {
-    Name = "publicRouteTable"
+    Name = "Public_rt"
+  }
+}
+
+resource "aws_route_table" "private_rt" {
+  vpc_id = aws_vpc.terra_vpc.id
+  route {
+    cidr_block = "0.0.0.0/0"
+    gateway_id = aws_internet_gateway.terra_igw.id
+  }
+  tags = {
+    Name = "Private_rt"
   }
 }  
+
 resource "aws_route_table_association" "a" {
-  count = length(var.subnets_cidr)
+  count = length(var.subnets_cidr_public)
   subnet_id      = element(aws_subnet.public.*.id,count.index)
   route_table_id = aws_route_table.public_rt.id
+}
+
+}  
+
+resource "aws_route_table_association" "b" {
+  count = length(var.subnets_cidr_private)
+  subnet_id      = element(aws_subnet.private.*.id,count.index)
+  route_table_id = aws_route_table.private_rt.id
 }
