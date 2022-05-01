@@ -177,8 +177,7 @@ resource "aws_security_group" "private_sg" {
       from_port = ingress.value["port"]
       to_port = ingress.value["port"]
       protocol = ingress.value["proto"]
-      try(cidr_blocks = ingress.value["cidr_block"])
-      try(security_groups = ingress.value["security_groups"])
+      cidr_blocks = ingress.value["cidr_block"]
     }
   }
   dynamic "egress" {
@@ -187,8 +186,7 @@ resource "aws_security_group" "private_sg" {
       from_port = egress.value["port"]
       to_port = egress.value["port"]
       protocol = egress.value["proto"]
-      try(cidr_blocks = egress.value["cidr_block"])
-      try(security_groups = egress.value["security_groups"])
+      cidr_blocks = egress.value["cidr_block"]
     }
   }
   tags = {
