@@ -82,9 +82,16 @@ resource "aws_eip" "nat" {
   vpc              = true
 }
 
+data "aws_subnet" "selected" {
+  filter {
+    name   = "tag:Name"
+    values = ["Subnet-Public1"]
+  }
+}
+
 resource "aws_nat_gateway" "example" {
   allocation_id = aws_eip.nat.id
-  subnet_id     = element(aws_subnet.public.1.id,count.index)
+  subnet_id     = data.aws_subnet.selected.id
 
   tags = {
     Name = "gw NAT"
