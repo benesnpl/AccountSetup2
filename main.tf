@@ -72,9 +72,20 @@ resource "aws_route_table_association" "a" {
 }
 
   
-
 resource "aws_route_table_association" "b" {
   count = length(var.subnets_cidr_private)
-  subnet_id      = element(aws_subnet.private.*.id,count.index)
+  subnet_id      = element(aws_subnet.public.*.id,count.index)
   route_table_id = aws_route_table.private_rt.id
+}
+
+
+resource "aws_nat_gateway" "example" {
+  allocation_id = aws_eip.example.id
+  subnet_id     = element(aws_subnet.public.1.id,count.index)
+
+  tags = {
+    Name = "gw NAT"
+  }
+
+  depends_on = [aws_internet_gateway.terra_igw]
 }
