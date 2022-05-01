@@ -78,9 +78,12 @@ resource "aws_route_table_association" "b" {
   route_table_id = aws_route_table.private_rt.id
 }
 
+resource "aws_eip" "nat" {
+  vpc              = true
+}
 
 resource "aws_nat_gateway" "example" {
-  allocation_id = aws_eip.example.id
+  allocation_id = aws_eip.nat.id
   subnet_id     = element(aws_subnet.public.1.id,count.index)
 
   tags = {
