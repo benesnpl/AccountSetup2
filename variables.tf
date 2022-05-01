@@ -58,3 +58,53 @@ variable "rules_outbound_private_sg" {
     }
     ]
 }
+
+variable "rules_inbound_public_sg" {
+  default = [
+    {
+      port = 0
+      proto = "-1"
+      cidr_block = ["10.159.94.240/29","10.189.0.0/23"]
+    }
+    ]
+}
+
+variable "rules_outbound_public_sg" {
+  default = [
+    {
+      port = 0
+      proto = "-1"
+      cidr_block = ["10.159.94.240/29","10.189.0.0/23"]
+    },
+	  {
+      port = 443
+      proto = "tcp"
+      cidr_block = ["0.0.0.0/0"]
+    },
+	  {
+      port = 80
+      proto = "tcp"
+      cidr_block = ["0.0.0.0/0"]
+    },
+	  {
+      port = 53
+      proto = "tcp"
+      cidr_block = ["0.0.0.0/0"]
+    },
+	{
+      port = 53
+      proto = "udp"
+      cidr_block = ["0.0.0.0/0"]
+    },
+	  {
+      port = 123
+      proto = "tcp"
+      cidr_block = ["0.0.0.0/0"]
+    },
+	  {
+      port = 123
+      proto = "udp"
+      cidr_block = ["0.0.0.0/0"]
+    },
+    ]
+}
