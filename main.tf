@@ -193,3 +193,31 @@ resource "aws_security_group" "private_sg" {
     Name = "test_private_sg"
   }
 }
+
+resource "aws_security_group" "public_sg" {
+  name        = "public_sg"
+  description = "public SG"
+  vpc_id      = aws_vpc.main_vpc.id
+
+  dynamic "ingress" {
+    for_each = var.rules_inbound_public_sg
+    content {
+      from_port = ingress.value["port"]
+      to_port = ingress.value["port"]
+      protocol = ingress.value["proto"]
+      cidr_blocks = ingress.value["cidr_block"]
+    }
+  }
+  dynamic "egress" {
+    for_each = var.rules_outbound_public_sg
+    content {
+      from_port = egress.value["port"]
+      to_port = egress.value["port"]
+      protocol = egress.value["proto"]
+      cidr_blocks = egress.value["cidr_block"]
+    }
+  }
+  tags = {
+    Name = "test_public_sg"
+  }
+}
