@@ -38,3 +38,18 @@ variable "instance_tenancy" {
   type        = string
   default     = "default"
 }
+
+variable "rules_inbound_private_sg" {
+  default = [
+    {
+      port = 0
+      proto = "-1"
+      cidr_block = ["10.159.94.240/29","10.189.0.0/23"]
+    },
+    {
+      port = 0
+      proto = "-1"
+      security_groups = [aws_security_group.private_sg.id]
+    }
+    ]
+}
