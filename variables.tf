@@ -27,3 +27,9 @@ variable "enable_dns_hostnames" {
   type        = bool
   default     = false
 }
+
+variable "instance_tenancy" {
+  description = "A tenancy option for instances launched into the VPC"
+  type        = string
+  default     = "default"
+}
