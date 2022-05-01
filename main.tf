@@ -87,6 +87,7 @@ data "aws_subnet" "selected" {
     name   = "tag:Name"
     values = ["Subnet-Public1"]
   }
+  depends_on = [aws_subnet.public]
 }
 
 resource "aws_nat_gateway" "example" {
