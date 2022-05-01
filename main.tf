@@ -99,3 +99,53 @@ resource "aws_nat_gateway" "example" {
 
   depends_on = [aws_internet_gateway.terra_igw]
 }
+
+resource "aws_vpn_gateway" "vpn_gw" {
+  vpc_id = aws_vpc.terra_vpc.id
+
+  tags = {
+    Name = "Test_VGW"
+  }
+}
+
+resource "aws_customer_gateway" "oakbrook" {
+  bgp_asn    = 65000
+  ip_address = "207.223.34.132"
+  type       = "ipsec.1"
+
+  tags = {
+    Name = "Test_Oakbrook_CGW"
+  }
+}
+
+resource "aws_customer_gateway" "miami" {
+  bgp_asn    = 65000
+  ip_address = "66.165.187.241"
+  type       = "ipsec.1"
+
+  tags = {
+    Name = "Test_Miami_CGW"
+  }
+}
+
+resource "aws_vpn_connection" "Oakbrook" {
+  vpn_gateway_id      = aws_vpn_gateway.vpn_gw.id
+  customer_gateway_id = aws_customer_gateway.oakbrook.id
+  type                = "ipsec.1"
+  static_routes_only  = true
+  tags = {
+    Name = "Oakbrook_ipsec"
+  }
+  
+}
+
+resource "aws_vpn_connection" "Miami" {
+  vpn_gateway_id      = aws_vpn_gateway.vpn_gw.id
+  customer_gateway_id = aws_customer_gateway.miami.id
+  type                = "ipsec.1"
+  static_routes_only  = true
+  tags = {
+    Name = "Miami_ipsec"
+  }
+}
+
