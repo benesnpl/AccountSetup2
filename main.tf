@@ -1,3 +1,8 @@
+provider "aws" {
+  region = "eu-west-1"
+}
+
+
 # VPC
 resource "aws_vpc" "terra_vpc" {
   cidr_block       					= var.vpc_cidr
